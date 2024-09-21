@@ -1,6 +1,8 @@
 import type {Metadata} from 'next'
 import {Noto_Sans_KR} from 'next/font/google'
 import './globals.css'
+import Header from '@/components/common/Header'
+import Footer from '@/components/common/Footer'
 
 const notoSansKR = Noto_Sans_KR({
   weight: ['400', '700'],
@@ -19,7 +21,11 @@ export default function RootLayout({
 }>) {
   return (
     <html>
-      <body className={`${notoSansKR.className} antialiased`}>{children}</body>
+      <body className={`${notoSansKR.className} antialiased`}>
+        <Header />
+        <main>{children}</main>
+        <Footer />
+      </body>
     </html>
   )
 }

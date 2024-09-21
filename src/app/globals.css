@@ -23,4 +23,21 @@ body {
   .text-balance {
     text-wrap: balance;
   }
+  .flex-center {
+    @apply flex items-center justify-center;
+  }
+  .divider {
+    @apply relative px-4;
+  }
+
+  .divider::before {
+    content: '';
+    @apply absolute bg-gray-400 w-1 h-1;
+  }
+}
+
+@layer components {
+  .button-primary {
+    @apply px-6 py-3 font-bold bg-green-600  text-white rounded-md;
+  }
 }
