@@ -7,7 +7,7 @@ const SearchInput = () => {
   const searchInput = useInput()
 
   return (
-    <div className="bg-white rounded-md overflow-hidden h-10 flex-1 max-w-80 border border-gray-300 px-2 flex-center">
+    <div className="input overflow-hidden flex-1 max-w-80 flex-center">
       <Image
         src="/images/search.svg"
         alt="검색"

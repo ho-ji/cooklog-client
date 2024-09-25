@@ -26,18 +26,20 @@ body {
   .flex-center {
     @apply flex items-center justify-center;
   }
-  .divider {
-    @apply relative px-4;
+  .divider :not(:last-child) {
+    @apply relative pr-6;
   }
-
-  .divider::before {
+  .divider :not(:last-child)::before {
     content: '';
-    @apply absolute bg-gray-400 w-1 h-1;
+    @apply absolute bg-gray-200 right-3 w-px  h-full;
   }
 }
 
 @layer components {
   .button-primary {
     @apply px-6 py-3 font-bold bg-green-600  text-white rounded-md;
+  }
+  .input {
+    @apply bg-white rounded-md  h-10 border border-gray-300 px-2;
   }
 }

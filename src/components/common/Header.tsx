@@ -12,15 +12,15 @@ const Header = () => {
         />
       </h1>
       <SearchInput />
-      <nav className="ml-auto divide-x ">
+      <nav className="ml-auto divider">
         <Link
           href="/signin"
-          className="px-3 font-bold align-baseline">
+          className="font-bold align-baseline">
           로그인
         </Link>
         <Link
           href="/signup"
-          className="px-3 font-bold align-baseline">
+          className="font-bold align-baseline">
           회원가입
         </Link>
       </nav>
