@@ -19,6 +19,10 @@ body {
   background: var(--background);
 }
 
+body :focus {
+  @apply outline-green-600;
+}
+
 @layer utilities {
   .text-balance {
     text-wrap: balance;
@@ -37,9 +41,27 @@ body {
 
 @layer components {
   .button-primary {
-    @apply px-6 py-3 font-bold bg-green-600  text-white rounded-md;
+    @apply px-6 py-2 font-bold bg-green-600 text-white rounded-md border border-green-600;
+  }
+  .button-primary-invert {
+    @apply px-6 py-2 font-bold bg-white text-green-600 rounded-md  border  border-green-600;
+  }
+  .button-primary-disable {
+    @apply px-6 py-2 font-bold bg-gray-200  text-gray-500 rounded-md border;
   }
   .input {
     @apply bg-white rounded-md  h-10 border border-gray-300 px-2;
+  }
+  .select {
+    @apply relative;
+  }
+  .select select {
+    @apply input w-full appearance-none pr-6;
+  }
+  .select::before {
+    content: '';
+    @apply absolute right-2 top-1/2 -translate-y-1/2;
+    background-image: url('/images/arrow-down.svg');
+    @apply bg-no-repeat bg-center w-4 h-4;
   }
 }
