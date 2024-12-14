@@ -11,7 +11,7 @@ const useInput = () => {
   }
   return {
     value,
-    onChange: handleChange,
+    handleChange,
     reset,
   }
 }
