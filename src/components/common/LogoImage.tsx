@@ -14,6 +14,7 @@ const LogoImage = ({w, h}: LogoImageProps) => {
         alt="Cook Log"
         width={w}
         height={h}
+        style={{width: 'auto', height: 'auto'}}
         priority
       />
     </Link>
