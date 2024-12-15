@@ -4,17 +4,25 @@ import {verifyEmailAPI} from '@/api/user'
 import useInput from '@/hooks/useInput'
 import {emailValidator} from '@/utils/validators'
 import Image from 'next/image'
-import React, {useState} from 'react'
+import React, {useEffect, useRef, useState} from 'react'
 
 const SignUpForm = () => {
   const [isCustomInput, setIsCustomInput] = useState(false)
-  const emailId = useInput()
+  const [emailId, setEmailId] = useState('')
   const password = useInput()
   const confirmPassword = useInput()
   const [domain, setDomain] = useState('')
   const [emailVerification, setEmailVerification] = useState<'idle' | 'loading' | 'error' | 'progressing' | 'success'>('idle')
+  const [emailTimer, setEmailTimer] = useState<number>(180)
+  const intervalRef = useRef<NodeJS.Timeout | null>(null)
+
+  const handleEmailIdChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
+    resetIdle()
+    setEmailId(e.target.value)
+  }
 
   const handleDomainChange: React.ChangeEventHandler<HTMLSelectElement | HTMLInputElement> = (e) => {
+    resetIdle()
     if (e.target.value === '직접입력') {
       setIsCustomInput(true)
       setDomain('')
@@ -25,6 +33,7 @@ const SignUpForm = () => {
 
   const clearDomain: React.MouseEventHandler<HTMLButtonElement> = () => {
     setIsCustomInput(false)
+    resetIdle()
     setDomain('')
   }
 
@@ -32,9 +41,40 @@ const SignUpForm = () => {
     setEmailVerification('loading')
     // const result = await verifyEmailAPI(`${emailId.value}@${domain}`)
     setEmailVerification('progressing')
+    emailTimerStart()
   }
 
-  const isEmailValid: boolean = emailValidator(emailId.value, domain)
+  const emailTimerStart = () => {
+    setEmailTimer(180)
+    intervalRef.current = setInterval(() => {
+      setEmailTimer((prev) => {
+        if (prev <= 1) {
+          clearInterval(intervalRef.current!)
+          intervalRef.current = null
+          return 0
+        }
+        return prev - 1
+      })
+    }, 1000)
+  }
+
+  const resetIdle = (): void => {
+    if (emailVerification !== 'idle') {
+      setEmailVerification('idle')
+      if (intervalRef.current !== null) {
+        clearInterval(intervalRef.current!)
+        intervalRef.current = null
+      }
+    }
+  }
+
+  useEffect(() => {
+    return () => {
+      if (intervalRef.current !== null) clearInterval(intervalRef.current)
+    }
+  }, [])
+
+  const isEmailValid: boolean = emailValidator(emailId, domain)
 
   return (
     <form className="flex flex-col [&_label]:mb-2 [&_label]:inline-block">
@@ -46,16 +86,18 @@ const SignUpForm = () => {
             maxLength={64}
             className="input w-32"
             id="email-username"
-            {...emailId}
+            onChange={handleEmailIdChange}
           />
           <span className="text-gray-400 p-1">@</span>
           {!isCustomInput ? (
             <div className="select w-full">
               <label className="sr-only">이메일 도메일 선택하기</label>
-              <select onChange={handleDomainChange}>
+              <select
+                onChange={handleDomainChange}
+                defaultValue="default">
                 <option
                   disabled
-                  selected>
+                  value="default">
                   선택해주세요
                 </option>
                 <option>naver.com</option>
@@ -115,17 +157,23 @@ const SignUpForm = () => {
                 htmlFor="email-verification-code">
                 이메일 인증코드
               </label>
-              <div className="flex w-full input">
+              <div className="flex items-center input">
                 <input
                   type="text"
-                  className="focus:outline-none mr-auto"
+                  className="focus:outline-none mr-auto w-2/3"
                   placeholder="인증코드를 입력해주세요"
+                  maxLength={6}
                   id="email-verification-code"
                 />
-                <p></p>
+                <span className="text-sm text-red-500 font-bold">
+                  {' '}
+                  {`${Math.floor(emailTimer / 60)
+                    .toString()
+                    .padStart(2, '0')}:${(emailTimer % 60).toString().padStart(2, '0')}`}
+                </span>
                 <button
                   type="button"
-                  className="text-sm px-2">
+                  className="text-sm px-2 ">
                   확인
                 </button>
               </div>
@@ -136,12 +184,12 @@ const SignUpForm = () => {
       <label>비밀번호</label>
       <input
         className="input"
-        {...password}
+        onChange={password.handleChange}
       />
       <label>비밀번호 확인</label>
       <input
         className="input"
-        {...confirmPassword}
+        onChange={confirmPassword.handleChange}
       />
       <button className="button-primary">회원가입</button>
     </form>
