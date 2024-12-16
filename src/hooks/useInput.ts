@@ -1,9 +1,13 @@
-import {useState} from 'react'
+import React, {useState} from 'react'
 
-const useInput = () => {
-  const [value, setValue] = useState('')
+const useInput = (): {
+  value: string
+  handleChange: React.ChangeEventHandler<HTMLInputElement>
+  reset: () => void
+} => {
+  const [value, setValue] = useState<string>('')
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
     setValue(e.target.value)
   }
   const reset = () => {

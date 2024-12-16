@@ -25,6 +25,7 @@ const SearchInput = () => {
         className="px-1 size-full focus:outline-none"
         placeholder="레시피 검색"
         maxLength={20}
+        value={searchInput.value}
         onChange={searchInput.handleChange}
       />
       {searchInput.value && (

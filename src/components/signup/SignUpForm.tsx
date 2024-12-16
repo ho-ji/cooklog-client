@@ -7,11 +7,11 @@ import Image from 'next/image'
 import React, {useEffect, useRef, useState} from 'react'
 
 const SignUpForm = () => {
-  const [isCustomInput, setIsCustomInput] = useState(false)
-  const [emailId, setEmailId] = useState('')
+  const [isCustomInput, setIsCustomInput] = useState<boolean>(false)
+  const [emailId, setEmailId] = useState<string>('')
   const password = useInput()
   const confirmPassword = useInput()
-  const [domain, setDomain] = useState('')
+  const [domain, setDomain] = useState<string>('')
   const [emailVerification, setEmailVerification] = useState<'idle' | 'loading' | 'error' | 'progressing' | 'success'>('idle')
   const [emailTimer, setEmailTimer] = useState<number>(180)
   const intervalRef = useRef<NodeJS.Timeout | null>(null)
@@ -86,6 +86,7 @@ const SignUpForm = () => {
             maxLength={64}
             className="input w-32"
             id="email-username"
+            value={emailId}
             onChange={handleEmailIdChange}
           />
           <span className="text-gray-400 p-1">@</span>
@@ -157,15 +158,16 @@ const SignUpForm = () => {
                 htmlFor="email-verification-code">
                 이메일 인증코드
               </label>
-              <div className="flex items-center input">
+              <div className={`flex items-center input ${emailTimer <= 0 && 'border border-red-500'}`}>
                 <input
                   type="text"
                   className="focus:outline-none mr-auto w-2/3"
                   placeholder="인증코드를 입력해주세요"
                   maxLength={6}
                   id="email-verification-code"
+                  onChange={emailVerificationCode.handleChange}
                 />
-                <span className="text-sm text-red-500 font-bold">
+                <span className="text-sm text-red-500 ">
                   {' '}
                   {`${Math.floor(emailTimer / 60)
                     .toString()
@@ -173,7 +175,8 @@ const SignUpForm = () => {
                 </span>
                 <button
                   type="button"
-                  className="text-sm px-2 ">
+                  className={`text-sm px-2 ${emailVerificationCode.value && emailTimer > 0 ? 'text-green-600 font-semibold' : 'text-gray-500 font-normal'}`}
+                  disabled={emailTimer <= 0}>
                   확인
                 </button>
               </div>
@@ -184,11 +187,13 @@ const SignUpForm = () => {
       <label>비밀번호</label>
       <input
         className="input"
+        value={password.value}
         onChange={password.handleChange}
       />
       <label>비밀번호 확인</label>
       <input
         className="input"
+        value={confirmPassword.value}
         onChange={confirmPassword.handleChange}
       />
       <button className="button-primary">회원가입</button>
