@@ -15,6 +15,7 @@ const SignUpForm = () => {
   const [emailVerification, setEmailVerification] = useState<'idle' | 'loading' | 'error' | 'progressing' | 'success'>('idle')
   const [emailTimer, setEmailTimer] = useState<number>(180)
   const intervalRef = useRef<NodeJS.Timeout | null>(null)
+  const emailVerificationCode = useInput()
 
   const handleEmailIdChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
     resetIdle()
@@ -41,6 +42,12 @@ const SignUpForm = () => {
     setEmailVerification('loading')
     // const result = await verifyEmailAPI(`${emailId.value}@${domain}`)
     setEmailVerification('progressing')
+    emailTimerStart()
+  }
+
+  const reverifyEmail = async () => {
+    clearInterval(intervalRef.current!)
+    //  const result = await verifyEmailAPI(`${emailId.value}@${domain}`)
     emailTimerStart()
   }
 
@@ -178,6 +185,22 @@ const SignUpForm = () => {
                   className={`text-sm px-2 ${emailVerificationCode.value && emailTimer > 0 ? 'text-green-600 font-semibold' : 'text-gray-500 font-normal'}`}
                   disabled={emailTimer <= 0}>
                   확인
+                </button>
+              </div>
+              {emailTimer <= 0 && <p className="text-xs text-red-500 mt-1">{`다시 인증하려면 '이메일 재전송'을 눌러주세요.`}</p>}
+              <div className="text-xs flex items-middle mt-2 gap-0.5 text-gray-500">
+                <Image
+                  src="/images/info.svg"
+                  alt="i"
+                  width={15}
+                  height={15}
+                />
+                <p>이메일을 받지 못하셨나요?</p>
+                <button
+                  type="button"
+                  className="underline"
+                  onClick={reverifyEmail}>
+                  이메일 재전송
                 </button>
               </div>
             </section>
