@@ -38,26 +38,25 @@ const SignUpForm = () => {
     setDomain('')
   }
 
-  const verifyEmail = async () => {
+  const verifyEmail = async (): Promise<void> => {
     setEmailVerification('loading')
     // const result = await verifyEmailAPI(`${emailId.value}@${domain}`)
     setEmailVerification('progressing')
     emailTimerStart()
   }
 
-  const reverifyEmail = async () => {
-    clearInterval(intervalRef.current!)
+  const reverifyEmail = async (): Promise<void> => {
+    resetTimer()
     //  const result = await verifyEmailAPI(`${emailId.value}@${domain}`)
     emailTimerStart()
   }
 
-  const emailTimerStart = () => {
+  const emailTimerStart = (): void => {
     setEmailTimer(180)
     intervalRef.current = setInterval(() => {
       setEmailTimer((prev) => {
         if (prev <= 1) {
-          clearInterval(intervalRef.current!)
-          intervalRef.current = null
+          resetTimer()
           return 0
         }
         return prev - 1
@@ -65,20 +64,22 @@ const SignUpForm = () => {
     }, 1000)
   }
 
+  const resetTimer = (): void => {
+    if (intervalRef.current !== null) {
+      clearInterval(intervalRef.current!)
+      intervalRef.current = null
+    }
+  }
+
   const resetIdle = (): void => {
     if (emailVerification !== 'idle') {
       setEmailVerification('idle')
-      if (intervalRef.current !== null) {
-        clearInterval(intervalRef.current!)
-        intervalRef.current = null
-      }
+      resetTimer()
     }
   }
 
   useEffect(() => {
-    return () => {
-      if (intervalRef.current !== null) clearInterval(intervalRef.current)
-    }
+    return () => resetTimer()
   }, [])
 
   const isEmailValid: boolean = emailValidator(emailId, domain)
