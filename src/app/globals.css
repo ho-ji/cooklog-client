@@ -52,6 +52,9 @@ body :focus {
   .input {
     @apply bg-white rounded-md  h-10 border border-gray-300 px-2;
   }
+  .input-error {
+    @apply outline-none border border-red-500 focus:outline-none;
+  }
   .select {
     @apply relative;
   }

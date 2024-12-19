@@ -42,9 +42,10 @@ const SignUpEmailVerification = () => {
   }
 
   const verifyEmail = async (): Promise<void> => {
-    if (!isEmailValid) return
+    if (!isEmailValid || emailVerification !== 'idle') return
     setEmailVerification('loading')
     // const result = await verifyEmailAPI(`${emailId.value}@${domain}`)
+    //TODO 이메일 주소 중복 setEmailVerification('error')
     setEmailVerification('progressing')
     emailTimerStart()
   }
@@ -89,18 +90,18 @@ const SignUpEmailVerification = () => {
   return (
     <div className="relative flex flex-col">
       <label htmlFor="email-username">이메일</label>
-      <div className="flex items-center mb-3">
+      <div className="flex items-center">
         <input
           type=" text"
           maxLength={64}
-          className="input w-32"
+          className={`input w-32 ${emailVerification === 'error' && 'input-error'}`}
           id="email-username"
           value={emailId}
           onChange={handleEmailIdChange}
         />
         <span className="text-gray-400 p-1">@</span>
         {!isCustomInput ? (
-          <div className="select w-full">
+          <div className={`select w-full ${emailVerification === 'error' && '[&>select]:input-error'}`}>
             <label className="sr-only">이메일 도메일 선택하기</label>
             <select
               onChange={handleDomainChange}
@@ -139,16 +140,12 @@ const SignUpEmailVerification = () => {
           </>
         )}
       </div>
-      {emailVerification === 'idle' && (
-        <button
-          type="button"
-          className={`${isEmailValid ? 'button-primary-invert' : 'button-primary-disable'}`}
-          onClick={verifyEmail}>
-          이메일 인증하기
-        </button>
-      )}
-      {emailVerification === 'loading' && (
-        <div className="button-primary-disable">
+      {emailVerification === 'error' && <p className="text-sm text-red-500 mt-2">이미 가입된 이메일입니다.</p>}
+      <button
+        type="button"
+        className={`mt-2 ${isEmailValid && emailVerification !== 'progressing' ? 'button-primary-invert' : 'button-primary-disable'}`}
+        onClick={verifyEmail}>
+        {emailVerification === 'loading' ? (
           <Image
             src="/images/loading.gif"
             alt="loading"
@@ -156,18 +153,21 @@ const SignUpEmailVerification = () => {
             height={24}
             className="mx-auto"
           />
-        </div>
-      )}
+        ) : emailVerification === 'success' ? (
+          '인증완료'
+        ) : (
+          '이메일 인증하기'
+        )}
+      </button>
       {emailVerification === 'progressing' && (
         <>
-          <div className="button-primary-disable text-center">이메일 인증하기</div>
-          <section className="bg-gray-50 p-3 my-3">
+          <section className="bg-gray-50 p-3 mt-5">
             <label
               className="text-sm"
               htmlFor="email-verification-code">
               이메일 인증코드
             </label>
-            <div className={`flex items-center input ${emailTimer <= 0 && 'border border-red-500'}`}>
+            <div className={`flex items-center input ${emailTimer <= 0 && 'input-error'}`}>
               <input
                 type="text"
                 className="focus:outline-none mr-auto w-2/3"
