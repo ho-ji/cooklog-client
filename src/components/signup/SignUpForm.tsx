@@ -8,6 +8,7 @@ import React, {useEffect, useRef, useState} from 'react'
 
 const SignUpForm = () => {
   const [isCustomInput, setIsCustomInput] = useState<boolean>(false)
+  const [isEmailValid, setIsEmailValid] = useState<boolean>(false)
   const [emailId, setEmailId] = useState<string>('')
   const password = useInput()
   const confirmPassword = useInput()
@@ -19,6 +20,7 @@ const SignUpForm = () => {
 
   const handleEmailIdChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
     resetIdle()
+    setIsEmailValid(emailValidator(e.target.value, domain))
     setEmailId(e.target.value)
   }
 
@@ -26,19 +28,23 @@ const SignUpForm = () => {
     resetIdle()
     if (e.target.value === '직접입력') {
       setIsCustomInput(true)
+      setIsEmailValid(false)
       setDomain('')
       return
     }
+    setIsEmailValid(emailValidator(emailId, e.target.value))
     setDomain(e.target.value)
   }
 
   const clearDomain: React.MouseEventHandler<HTMLButtonElement> = () => {
     setIsCustomInput(false)
+    setIsEmailValid(false)
     resetIdle()
     setDomain('')
   }
 
   const verifyEmail = async (): Promise<void> => {
+    if (!isEmailValid) return
     setEmailVerification('loading')
     // const result = await verifyEmailAPI(`${emailId.value}@${domain}`)
     setEmailVerification('progressing')
@@ -82,13 +88,11 @@ const SignUpForm = () => {
     return () => resetTimer()
   }, [])
 
-  const isEmailValid: boolean = emailValidator(emailId, domain)
-
   return (
-    <form className="flex flex-col [&_label]:mb-2 [&_label]:inline-block">
-      <div className="relative">
+    <form className="flex flex-col gap-5 [&_label]:mb-1 [&_label]:inline-block">
+      <div className="relative flex flex-col">
         <label htmlFor="email-username">이메일</label>
-        <div className="flex items-center">
+        <div className="flex items-center mb-3">
           <input
             type=" text"
             maxLength={64}
@@ -141,13 +145,13 @@ const SignUpForm = () => {
         {emailVerification === 'idle' && (
           <button
             type="button"
-            className={`w-full my-3 ${isEmailValid ? 'button-primary-invert' : 'button-primary-disable'}`}
+            className={`${isEmailValid ? 'button-primary-invert' : 'button-primary-disable'}`}
             onClick={verifyEmail}>
             이메일 인증하기
           </button>
         )}
         {emailVerification === 'loading' && (
-          <div className="w-full my-3 button-primary-disable">
+          <div className="button-primary-disable">
             <Image
               src="/images/loading.gif"
               alt="loading"
@@ -159,8 +163,8 @@ const SignUpForm = () => {
         )}
         {emailVerification === 'progressing' && (
           <>
-            <div className="w-full my-3 button-primary-disable text-center">이메일 인증하기</div>
-            <section className="bg-gray-50 p-3 my-5">
+            <div className="button-primary-disable text-center">이메일 인증하기</div>
+            <section className="bg-gray-50 p-3 my-3">
               <label
                 className="text-sm"
                 htmlFor="email-verification-code">
@@ -195,6 +199,7 @@ const SignUpForm = () => {
                   alt="i"
                   width={15}
                   height={15}
+                  style={{width: '15px', height: '15px'}}
                 />
                 <p>이메일을 받지 못하셨나요?</p>
                 <button
