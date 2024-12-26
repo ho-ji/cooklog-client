@@ -4,9 +4,12 @@ import Image from 'next/image'
 import {useEffect, useRef, useState} from 'react'
 
 import {emailValidator} from '@/utils/validators'
-import useInput from '@/hooks/useInput'
 
-const SignUpEmailVerification = () => {
+interface Props {
+  setSignUpEmail: (email: string) => void
+}
+
+const SignUpEmailVerification = ({setSignUpEmail}: Props) => {
   const [isCustomInput, setIsCustomInput] = useState<boolean>(false)
   const [isEmailValid, setIsEmailValid] = useState<boolean>(false)
   const [emailId, setEmailId] = useState<string>('')
@@ -14,7 +17,8 @@ const SignUpEmailVerification = () => {
   const [emailVerification, setEmailVerification] = useState<'idle' | 'loading' | 'error' | 'progressing' | 'success'>('idle')
   const [emailTimer, setEmailTimer] = useState<number>(180)
   const intervalRef = useRef<NodeJS.Timeout | null>(null)
-  const emailVerificationCode = useInput()
+  const [verificationCode, setVerificationCode] = useState<string>('')
+  const [codeError, setCodeError] = useState<boolean>(false)
 
   const handleEmailIdChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
     resetIdle()
@@ -52,8 +56,25 @@ const SignUpEmailVerification = () => {
 
   const reverifyEmail = async (): Promise<void> => {
     resetTimer()
+    setVerificationCode('')
+    setCodeError(false)
     //  const result = await verifyEmailAPI(`${emailId.value}@${domain}`)
     emailTimerStart()
+  }
+
+  const handleVerificationCodeChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
+    setVerificationCode(e.target.value)
+    setCodeError(false)
+  }
+
+  const checkVerificationCode: React.MouseEventHandler<HTMLButtonElement> = () => {
+    // const result = await verifyVerificationCodeAPI(verificationCode)
+    // if (result.success) {
+    //   setSignUpEmail(true)
+    //   setEmailVerification('success')
+    //   return
+    // }
+    // setCodeError(true)
   }
 
   const emailTimerStart = (): void => {
@@ -80,6 +101,8 @@ const SignUpEmailVerification = () => {
     if (emailVerification !== 'idle') {
       setEmailVerification('idle')
       resetTimer()
+      setVerificationCode('')
+      setCodeError(false)
     }
   }
 
@@ -94,6 +117,7 @@ const SignUpEmailVerification = () => {
         <input
           type=" text"
           maxLength={64}
+          placeholder="이메일"
           className={`input w-32 ${emailVerification === 'error' && 'input-error'}`}
           id="email-username"
           value={emailId}
@@ -164,17 +188,18 @@ const SignUpEmailVerification = () => {
           <section className="bg-gray-50 p-3 mt-5">
             <label
               className="text-sm"
-              htmlFor="email-verification-code">
+              htmlFor="verification-code">
               이메일 인증코드
             </label>
-            <div className={`flex items-center input ${emailTimer <= 0 && 'input-error'}`}>
+            <div className={`flex items-center input ${(codeError || emailTimer <= 0) && 'input-error'}`}>
               <input
                 type="text"
                 className="focus:outline-none mr-auto w-2/3"
                 placeholder="인증코드를 입력해주세요"
+                value={verificationCode}
                 maxLength={6}
-                id="email-verification-code"
-                onChange={emailVerificationCode.handleChange}
+                id="verification-code"
+                onChange={handleVerificationCodeChange}
               />
               <span className="text-sm text-red-500 ">
                 {' '}
@@ -184,7 +209,8 @@ const SignUpEmailVerification = () => {
               </span>
               <button
                 type="button"
-                className={`text-sm px-2 ${emailVerificationCode.value && emailTimer > 0 ? 'text-green-600 font-semibold' : 'text-gray-500 font-normal'}`}
+                onClick={checkVerificationCode}
+                className={`text-sm px-2 ${!codeError && verificationCode && emailTimer > 0 ? 'text-green-600 font-semibold' : 'text-gray-500 font-normal'}`}
                 disabled={emailTimer <= 0}>
                 확인
               </button>
