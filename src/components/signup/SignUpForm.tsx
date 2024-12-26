@@ -2,13 +2,16 @@
 
 import SignUpEmailVerification from './SignUpEmailVerification'
 import React, {useState} from 'react'
-import {passwordValidator} from '@/utils/validators'
+import {nicknameValidator, passwordValidator} from '@/utils/validators'
 
 const SignUpForm = () => {
   const [password, setPassword] = useState<string>('')
   const [passwordError, setPasswordError] = useState<boolean>(false)
   const [confirmPassword, setConfirmPassword] = useState<string>('')
   const [confirmPasswordError, setConfirmPasswordError] = useState<boolean>(false)
+  const [nickname, setNickname] = useState<string>('')
+  const [nicknameError, setNicknameError] = useState<boolean>(false)
+  const [isNicknameDuplicate, setIsNicknameDuplicate] = useState<boolean>(false)
 
   const handlePassswordChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
     setPassword(e.target.value)
@@ -23,6 +26,18 @@ const SignUpForm = () => {
   }
 
   const verifyConfirmPassword: React.FocusEventHandler<HTMLInputElement> = () => setConfirmPasswordError(confirmPassword === '' || password !== confirmPassword)
+
+  const handleNicknameChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
+    setNickname(e.target.value)
+    setIsNicknameDuplicate(false)
+    setNicknameError(!nicknameValidator(e.target.value))
+  }
+
+  const verifyNickname: React.FocusEventHandler<HTMLInputElement> = async () => {
+    if (nicknameError) return
+    // const isDuplicate = await verifyNicknameAPI(nickname.value)
+    // if(isDuplicate) setIsNicknameDuplicate(true)
+  }
 
   return (
     <form className="flex flex-col gap-5 [&_label]:mb-1 [&_label]:inline-block">
@@ -55,6 +70,19 @@ const SignUpForm = () => {
           id="confirm-password"
         />
         {confirmPasswordError && <p className="text-xs text-red-500 mt-1">{confirmPassword === '' ? '비밀번호를 다시 입력해주세요.' : '비밀번호가 일치하지 않습니다.'}</p>}
+      </div>
+      <div className="flex flex-col">
+        <label>닉네임</label>
+        <p className="text-xs mb-2 text-gray-500">2~20자리의 닉네임을 입력해주세요.(변경 가능)</p>
+        <input
+          className={`input ${(nicknameError || isNicknameDuplicate) && 'input-error'}`}
+          value={nickname}
+          onChange={handleNicknameChange}
+          onBlur={verifyNickname}
+          placeholder="닉네임 입력"
+        />
+        {nicknameError && <p className="text-xs text-red-500 mt-1">{nickname === '' ? '닉네임을 입력해주세요.' : nickname.length < 2 ? '2자 이상 입력해주세요.' : '이미 사용 중인 닉네임입니다.'}</p>}
+        {isNicknameDuplicate && <p className="text-xs text-red-500 mt-1">이미 사용 중인 닉네임입니다.</p>}
       </div>
       <button className="button-primary">회원가입</button>
     </form>
