@@ -47,7 +47,7 @@ body :focus {
     @apply px-6 py-2 font-bold bg-white text-green-600 rounded-md  border  border-green-600;
   }
   .button-primary-disable {
-    @apply px-6 py-2 font-bold bg-gray-200  text-gray-500 rounded-md border;
+    @apply px-6 py-2 font-bold bg-gray-200  text-gray-500 rounded-md border border-gray-200;
   }
   .input {
     @apply bg-white rounded-md  h-10 border border-gray-300 px-2;

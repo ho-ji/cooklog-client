@@ -4,12 +4,17 @@ import {useState} from 'react'
 
 import {nicknameValidator} from '@/utils/validators'
 
-const SignUpNicknameField = () => {
+interface Props {
+  setSignUpNickname: (nickname: string) => void
+}
+
+const SignUpNicknameField = ({setSignUpNickname}: Props) => {
   const [nickname, setNickname] = useState<string>('')
   const [nicknameError, setNicknameError] = useState<boolean>(false)
   const [isNicknameDuplicate, setIsNicknameDuplicate] = useState<boolean>(false)
 
   const handleNicknameChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
+    setSignUpNickname('')
     setNickname(e.target.value)
     setIsNicknameDuplicate(false)
     setNicknameError(!nicknameValidator(e.target.value))
@@ -17,8 +22,12 @@ const SignUpNicknameField = () => {
 
   const verifyNickname: React.FocusEventHandler<HTMLInputElement> = async () => {
     if (nicknameError) return
-    // const isDuplicate = await verifyNicknameAPI(nickname.value)
-    // if(isDuplicate) setIsNicknameDuplicate(true)
+    // const isDuplicate = await verifyNicknameAPI(nickname)
+    // if(isDuplicate) {
+    //   setIsNicknameDuplicate(true)
+    //   return
+    // }
+    // setSignUpNickname(nickname)
   }
   return (
     <div className="flex flex-col">
@@ -27,6 +36,7 @@ const SignUpNicknameField = () => {
       <input
         className={`input ${(nicknameError || isNicknameDuplicate) && 'input-error'}`}
         value={nickname}
+        maxLength={20}
         onChange={handleNicknameChange}
         onBlur={verifyNickname}
         placeholder="닉네임 입력"

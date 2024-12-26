@@ -4,25 +4,36 @@ import {useState} from 'react'
 
 import {passwordValidator} from '@/utils/validators'
 
-const SignUpPasswordFields = () => {
+interface Props {
+  setSignUpPassword: (password: string) => void
+}
+
+const SignUpPasswordFields = ({setSignUpPassword}: Props) => {
   const [password, setPassword] = useState<string>('')
-  const [passwordError, setPasswordError] = useState<boolean>(false)
+  const [passwordError, setPasswordError] = useState<null | boolean>(null)
   const [confirmPassword, setConfirmPassword] = useState<string>('')
-  const [confirmPasswordError, setConfirmPasswordError] = useState<boolean>(false)
+  const [confirmPasswordError, setConfirmPasswordError] = useState<null | boolean>(null)
 
   const handlePassswordChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
     setPassword(e.target.value)
-    if (passwordError) setPasswordError(!passwordValidator(e.target.value))
+    if (passwordError !== null) setPasswordError(!passwordValidator(e.target.value))
   }
 
-  const verifyPassword: React.FocusEventHandler<HTMLInputElement> = () => setPasswordError(!passwordValidator(password))
+  const verifyPassword: React.FocusEventHandler<HTMLInputElement> = () => {
+    setPasswordError(!passwordValidator(password))
+    setSignUpPassword('')
+  }
 
   const handleConfirmPasswordChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
     setConfirmPassword(e.target.value)
-    if (confirmPasswordError) setConfirmPasswordError(e.target.value === '' || password !== e.target.value)
+    if (confirmPasswordError !== null) setConfirmPasswordError(e.target.value === '' || password !== e.target.value)
   }
 
-  const verifyConfirmPassword: React.FocusEventHandler<HTMLInputElement> = () => setConfirmPasswordError(confirmPassword === '' || password !== confirmPassword)
+  const verifyConfirmPassword: React.FocusEventHandler<HTMLInputElement> = () => {
+    setConfirmPasswordError(confirmPassword === '' || password !== confirmPassword)
+    if (!passwordError && password === confirmPassword) setSignUpPassword(password)
+    else setSignUpPassword('')
+  }
 
   return (
     <>
