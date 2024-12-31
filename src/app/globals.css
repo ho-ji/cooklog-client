@@ -67,4 +67,18 @@ body :focus {
     background-image: url('/images/arrow-down.svg');
     @apply bg-no-repeat bg-center w-4 h-4;
   }
+  .spinner {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: radial-gradient(farthest-side, #16a34a 94%, #0000) top/3.8px 3.8px no-repeat, conic-gradient(#0000 30%, #16a34a);
+    -webkit-mask: radial-gradient(farthest-side, #0000 calc(100% - 3.8px), #000 0);
+    animation: spinner-c7wet2 1s infinite linear;
+  }
+
+  @keyframes spinner-c7wet2 {
+    100% {
+      transform: rotate(1turn);
+    }
+  }
 }

@@ -4,6 +4,7 @@ import Image from 'next/image'
 import {useEffect, useRef, useState} from 'react'
 
 import {emailValidator} from '@/utils/validators'
+import {verifyEmailAPI} from '@/api/user'
 
 interface Props {
   setSignUpEmail: (email: string) => void
@@ -48,8 +49,11 @@ const SignUpEmailVerification = ({setSignUpEmail}: Props) => {
   const verifyEmail = async (): Promise<void> => {
     if (!isEmailValid || emailVerification !== 'idle') return
     setEmailVerification('loading')
-    // const result = await verifyEmailAPI(`${emailId.value}@${domain}`)
-    //TODO 이메일 주소 중복 setEmailVerification('error')
+    const isEmailTaken = await verifyEmailAPI(`${emailId}@${domain}`)
+    if (isEmailTaken) {
+      setEmailVerification('error')
+      return
+    }
     setEmailVerification('progressing')
     emailTimerStart()
   }
@@ -167,21 +171,9 @@ const SignUpEmailVerification = ({setSignUpEmail}: Props) => {
       {emailVerification === 'error' && <p className="text-sm text-red-500 mt-2">이미 가입된 이메일입니다.</p>}
       <button
         type="button"
-        className={`mt-2 ${isEmailValid && emailVerification !== 'progressing' ? 'button-primary-invert' : 'button-primary-disable'}`}
+        className={`mt-2  ${isEmailValid && emailVerification !== 'progressing' ? 'button-primary-invert' : 'button-primary-disable'}`}
         onClick={verifyEmail}>
-        {emailVerification === 'loading' ? (
-          <Image
-            src="/images/loading.gif"
-            alt="loading"
-            width={24}
-            height={24}
-            className="mx-auto"
-          />
-        ) : emailVerification === 'success' ? (
-          '인증완료'
-        ) : (
-          '이메일 인증하기'
-        )}
+        {emailVerification === 'loading' ? <div className="spinner mx-auto"></div> : emailVerification === 'success' ? '인증완료' : '이메일 인증하기'}
       </button>
       {emailVerification === 'progressing' && (
         <>
