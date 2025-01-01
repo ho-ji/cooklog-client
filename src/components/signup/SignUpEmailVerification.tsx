@@ -4,7 +4,7 @@ import Image from 'next/image'
 import {useEffect, useRef, useState} from 'react'
 
 import {emailValidator} from '@/utils/validators'
-import {verifyEmailAPI} from '@/api/user'
+import {sendVerificationCodeAPI, verifyEmailAPI} from '@/api/user'
 
 interface Props {
   setSignUpEmail: (email: string) => void
@@ -20,6 +20,7 @@ const SignUpEmailVerification = ({setSignUpEmail}: Props) => {
   const intervalRef = useRef<NodeJS.Timeout | null>(null)
   const [verificationCode, setVerificationCode] = useState<string>('')
   const [codeError, setCodeError] = useState<boolean>(false)
+  const [loading, setLoading] = useState<boolean>(false)
 
   const handleEmailIdChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
     resetIdle()
@@ -49,21 +50,35 @@ const SignUpEmailVerification = ({setSignUpEmail}: Props) => {
   const verifyEmail = async (): Promise<void> => {
     if (!isEmailValid || emailVerification !== 'idle') return
     setEmailVerification('loading')
-    const isEmailTaken = await verifyEmailAPI(`${emailId}@${domain}`)
-    if (isEmailTaken) {
-      setEmailVerification('error')
-      return
+
+    try {
+      const res = await verifyEmailAPI(`${emailId}@${domain}`)
+      if (res.data) {
+        setEmailVerification('error')
+        return
+      }
+      setEmailVerification('progressing')
+      await sendVerificationCodeAPI(`${emailId}@${domain}`)
+      emailTimerStart()
+    } catch (error) {
+      console.error(error)
     }
-    setEmailVerification('progressing')
-    emailTimerStart()
   }
 
   const reverifyEmail = async (): Promise<void> => {
-    resetTimer()
-    setVerificationCode('')
-    setCodeError(false)
-    //  const result = await verifyEmailAPI(`${emailId.value}@${domain}`)
-    emailTimerStart()
+    try {
+      if (loading) return
+      setLoading(true)
+      await sendVerificationCodeAPI(`${emailId}@${domain}`)
+      resetTimer()
+      setVerificationCode('')
+      setCodeError(false)
+      emailTimerStart()
+    } catch (error) {
+      console.error(error)
+    } finally {
+      setLoading(false)
+    }
   }
 
   const handleVerificationCodeChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
@@ -72,6 +87,7 @@ const SignUpEmailVerification = ({setSignUpEmail}: Props) => {
   }
 
   const checkVerificationCode: React.MouseEventHandler<HTMLButtonElement> = () => {
+    //loading
     // const result = await verifyVerificationCodeAPI(verificationCode)
     // if (result.success) {
     //   setSignUpEmail(true)
