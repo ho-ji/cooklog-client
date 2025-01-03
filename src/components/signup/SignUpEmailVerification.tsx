@@ -216,7 +216,7 @@ const SignUpEmailVerification = ({setSignUpEmail}: Props) => {
       </button>
       {status === 'progressing' && (
         <>
-          <section className="bg-gray-50 p-3 mt-5">
+          <section className="bg-gray-50 p-3 mt-5 relative">
             <label
               className="text-sm"
               htmlFor="verification-code">
@@ -262,6 +262,11 @@ const SignUpEmailVerification = ({setSignUpEmail}: Props) => {
                 이메일 재전송
               </button>
             </div>
+            {loading && (
+              <div className="absolute size-full top-0 left-0 flex items-center justify-center">
+                <span className="spinner absolute"></span>
+              </div>
+            )}
           </section>
         </>
       )}
