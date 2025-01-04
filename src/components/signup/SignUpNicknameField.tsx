@@ -20,22 +20,24 @@ const errorMessage: Record<ErrorType, string> = {
 const SignUpNicknameField = ({setSignUpNickname}: Props) => {
   const [nickname, setNickname] = useState<string>('')
   const [nicknameError, setNicknameError] = useState<ErrorType | null>(null)
+  const [isChange, setIsChange] = useState<boolean>(false)
   const [isFocused, setIsFocused] = useState<boolean>(false)
 
   const handleNicknameChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
     setSignUpNickname('')
+    setIsChange(true)
     const inputValue = e.target.value
     setNickname(inputValue)
-    if (!isFocused) return
     const error = inputValue.length === 0 ? 'empty' : inputValue.length < 2 ? 'short' : !nicknameValidator(inputValue) ? 'invalid' : null
     setNicknameError(error)
   }
 
   const verifyNickname: React.FocusEventHandler<HTMLInputElement> = async () => {
     setIsFocused(true)
-    if (nicknameError) return
+    if (nicknameError || !isChange) return
     try {
       const res = await verifyNicknameAPI(nickname)
+      setIsChange(false)
       if (res.data) {
         setNicknameError('duplicate')
         return
@@ -58,7 +60,7 @@ const SignUpNicknameField = ({setSignUpNickname}: Props) => {
         onBlur={verifyNickname}
         placeholder="닉네임 입력"
       />
-      {nicknameError && <p className="text-xs text-red-500 mt-1">{errorMessage[nicknameError]}</p>}
+      {nicknameError && isFocused && <p className="text-xs text-red-500 mt-1">{errorMessage[nicknameError]}</p>}
     </div>
   )
 }
