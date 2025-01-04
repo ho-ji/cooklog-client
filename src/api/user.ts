@@ -29,3 +29,12 @@ export const checkVerificationCodeAPI = async (email: string, code: string) => {
     throw error
   }
 }
+
+export const verifyNicknameAPI = async (nickname: string) => {
+  try {
+    const res = await instance.get(`/api/user/verify-nickname/${nickname}`)
+    return res.data
+  } catch (error) {
+    throw error
+  }
+}
