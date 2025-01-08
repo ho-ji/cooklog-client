@@ -60,7 +60,7 @@ const SignUpForm = () => {
 
   return (
     <form
-      className="flex flex-col gap-5 [&>div>label]:mb-1 [&>div>label]:inline-block"
+      className="flex flex-col gap-5 [&>div>label]:mb-2 [&>div>label]:inline-block"
       onSubmit={signUp}>
       <SignUpEmailVerification setSignUpEmail={setSignUpEmail} />
       <SignUpPasswordFields setSignUpPassword={setSignUpPassword} />

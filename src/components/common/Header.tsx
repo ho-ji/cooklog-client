@@ -1,15 +1,20 @@
 import Link from 'next/link'
 import SearchInput from './SearchInput'
-import LogoImage from './LogoImage'
+import Image from 'next/image'
 
 const Header = () => {
   return (
     <header className=" px-4 py-2 flex-center gap-4">
       <h1>
-        <LogoImage
-          w={120}
-          h={60}
-        />
+        <Link href="/">
+          <Image
+            src="/images/logo.png"
+            alt="Cook Log"
+            width={100}
+            height={87}
+            priority
+          />
+        </Link>
       </h1>
       <SearchInput />
       <nav className="ml-auto divider">
