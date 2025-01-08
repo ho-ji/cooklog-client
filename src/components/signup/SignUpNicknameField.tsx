@@ -6,7 +6,7 @@ import {nicknameValidator} from '@/utils/validators'
 import {verifyNicknameAPI} from '@/api/user'
 
 interface Props {
-  setSignUpNickname: (nickname: string) => void
+  setSignUpNickname: React.Dispatch<React.SetStateAction<string>>
 }
 
 type ErrorType = 'empty' | 'short' | 'invalid' | 'duplicate'

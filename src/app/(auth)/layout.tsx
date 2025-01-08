@@ -26,7 +26,7 @@ const MemberLayout = ({children}: {children: React.ReactNode}) => {
       <main className="flex-1 flex-center flex-col min-h-fit py-7">
         <section className="w-80">{children}</section>
       </main>
-      <footer className="text-sm mb-3 text-gray-400">©2024 장예지. All rights reserved.</footer>
+      <footer className="text-sm mb-3 text-gray-400">©2025 장예지. All rights reserved.</footer>
     </div>
   )
 }

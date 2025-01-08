@@ -5,7 +5,7 @@ import {useState} from 'react'
 import {passwordValidator} from '@/utils/validators'
 
 interface Props {
-  setSignUpPassword: (password: string) => void
+  setSignUpPassword: React.Dispatch<React.SetStateAction<string>>
 }
 
 const SignUpPasswordFields = ({setSignUpPassword}: Props) => {

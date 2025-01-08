@@ -7,7 +7,7 @@ import {emailValidator, verificationCodeValidator} from '@/utils/validators'
 import {checkVerificationCodeAPI, sendVerificationCodeAPI, verifyEmailAPI} from '@/api/user'
 
 interface Props {
-  setSignUpEmail: (email: string) => void
+  setSignUpEmail: React.Dispatch<React.SetStateAction<string>>
 }
 
 type StatusType = 'idle' | 'loading' | 'error' | 'progressing' | 'success'

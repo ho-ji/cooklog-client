@@ -1,3 +1,4 @@
+import {UserInfo} from '@/components/signup/SignUpForm'
 import {instance} from '.'
 
 export const verifyEmailAPI = async (email: string) => {
@@ -33,6 +34,17 @@ export const checkVerificationCodeAPI = async (email: string, code: string) => {
 export const verifyNicknameAPI = async (nickname: string) => {
   try {
     const res = await instance.get(`/api/user/verify-nickname/${nickname}`)
+    return res.data
+  } catch (error) {
+    throw error
+  }
+}
+
+export const signUpAPI = async (userInfo: UserInfo) => {
+  try {
+    const res = await instance.post('/api/signup', {
+      userInfo,
+    })
     return res.data
   } catch (error) {
     throw error
