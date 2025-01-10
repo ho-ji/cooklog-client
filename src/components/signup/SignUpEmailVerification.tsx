@@ -5,12 +5,9 @@ import {useEffect, useRef, useState} from 'react'
 
 import {emailValidator, verificationCodeValidator} from '@/utils/validators'
 import {checkVerificationCodeAPI, sendVerificationCodeAPI, verifyEmailAPI} from '@/api/user'
+import {useFormContext} from 'react-hook-form'
 
-interface Props {
-  setSignUpEmail: React.Dispatch<React.SetStateAction<string>>
-}
-
-type StatusType = 'idle' | 'loading' | 'error' | 'progressing' | 'success'
+type StatusType = 'idle' | 'loading' | 'progressing' | 'success'
 type CodeErrorType = 'invalid' | 'expired' | 'incorrect'
 const codeErrorMessage: Record<CodeErrorType, string> = {
   invalid: '6자리 숫자로 된 인증번호를 입력해주세요.',
@@ -18,11 +15,18 @@ const codeErrorMessage: Record<CodeErrorType, string> = {
   incorrect: '인증번호가 잘못되었습니다. 다시 입력해주세요.',
 }
 
-const SignUpEmailVerification = ({setSignUpEmail}: Props) => {
+const SignUpEmailVerification = () => {
+  const {
+    register,
+    getValues,
+    setValue,
+    resetField,
+    formState: {errors},
+    setError,
+    clearErrors,
+  } = useFormContext()
   const [isCustomInput, setIsCustomInput] = useState<boolean>(false)
   const [isEmailValid, setIsEmailValid] = useState<boolean>(false)
-  const [emailId, setEmailId] = useState<string>('')
-  const [domain, setDomain] = useState<string>('')
   const [status, setStatus] = useState<StatusType>('idle')
   const [emailTimer, setEmailTimer] = useState<number>(180)
   const intervalRef = useRef<NodeJS.Timeout | null>(null)
@@ -32,43 +36,46 @@ const SignUpEmailVerification = ({setSignUpEmail}: Props) => {
 
   const handleEmailIdChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
     resetIdle()
-    setIsEmailValid(emailValidator(e.target.value, domain))
-    setEmailId(e.target.value)
+    clearErrors('emailId')
+    setIsEmailValid(emailValidator(e.target.value, getValues('domain')))
   }
 
   const handleDomainChange: React.ChangeEventHandler<HTMLSelectElement | HTMLInputElement> = (e) => {
     resetIdle()
+    clearErrors('emailId')
     if (e.target.value === '직접입력') {
       setIsCustomInput(true)
       setIsEmailValid(false)
-      setDomain('')
+      setValue('domain', '')
       return
     }
-    setIsEmailValid(emailValidator(emailId, e.target.value))
-    setDomain(e.target.value)
+    setIsEmailValid(emailValidator(getValues('emailId'), e.target.value))
   }
 
   const clearDomain: React.MouseEventHandler<HTMLButtonElement> = () => {
     setIsCustomInput(false)
+    clearErrors('emailId')
     setIsEmailValid(false)
     resetIdle()
-    setDomain('')
+    resetField('domain')
   }
 
   const verifyEmail = async (): Promise<void> => {
     if (!isEmailValid || status !== 'idle') return
     setStatus('loading')
-
     try {
-      const res = await verifyEmailAPI(`${emailId}@${domain}`)
+      const res = await verifyEmailAPI(`${getValues('emailId')}@${getValues('domain')}`)
       if (res.data) {
-        setStatus('error')
+        setError('emailId', {message: '이미 가입된 이메일입니다.'}, {shouldFocus: true})
+        setStatus('idle')
         return
       }
       setStatus('progressing')
       emailTimerStart()
-      await sendVerificationCodeAPI(`${emailId}@${domain}`)
+      await sendVerificationCodeAPI(`${getValues('emailId')}@${getValues('domain')}`)
     } catch (error) {
+      setError('emailId', {message: '잠시 후 다시 시도해주세요.'}, {shouldFocus: false})
+      setStatus('idle')
       console.error(error)
     }
   }
@@ -80,7 +87,7 @@ const SignUpEmailVerification = ({setSignUpEmail}: Props) => {
       resetTimer()
       setVerificationCode('')
       setCodeError(null)
-      await sendVerificationCodeAPI(`${emailId}@${domain}`)
+      await sendVerificationCodeAPI(`${getValues('emailId')}@${getValues('domain')}`)
       emailTimerStart()
     } catch (error) {
       console.error(error)
@@ -102,9 +109,8 @@ const SignUpEmailVerification = ({setSignUpEmail}: Props) => {
     }
     try {
       setLoading(true)
-      const res = await checkVerificationCodeAPI(`${emailId}@${domain}`, verificationCode)
+      const res = await checkVerificationCodeAPI(`${getValues('emailId')}@${getValues('domain')}`, verificationCode)
       if (res.success && res.data) {
-        setSignUpEmail(`${emailId}@${domain}`)
         setStatus('success')
         return
       }
@@ -158,21 +164,18 @@ const SignUpEmailVerification = ({setSignUpEmail}: Props) => {
         <input
           type=" text"
           maxLength={64}
+          {...register('emailId', {required: true, onChange: handleEmailIdChange, disabled: status === 'success'})}
           placeholder="이메일"
-          className={`input w-32 ${status === 'error' && 'input-error'}`}
+          className={`input w-32 ${errors.emailId && 'input-error'}`}
           id="email-username"
-          value={emailId}
-          onChange={handleEmailIdChange}
-          disabled={status === 'success'}
         />
         <span className="text-gray-400 p-1">@</span>
         {!isCustomInput ? (
-          <div className={`select w-full ${status === 'error' && '[&>select]:input-error'}`}>
+          <div className={`select w-full ${errors.emailId && '[&>select]:input-error'}`}>
             <label className="sr-only">이메일 도메일 선택하기</label>
             <select
-              onChange={handleDomainChange}
-              defaultValue="default"
-              disabled={status === 'success'}>
+              {...register('domain', {required: true, onChange: handleDomainChange, disabled: status === 'success'})}
+              defaultValue="default">
               <option
                 disabled
                 value="default">
@@ -188,10 +191,10 @@ const SignUpEmailVerification = ({setSignUpEmail}: Props) => {
         ) : (
           <>
             <input
+              {...register('domain', {required: '도메인을 입력해주세요.', onChange: handleDomainChange, disabled: status === 'success'})}
               type="text"
-              className="input w-full pr-6"
+              className={`input w-full pr-6 ${errors.emailId && 'input-error'}`}
               placeholder="입력해주세요"
-              onChange={handleDomainChange}
             />
             <button
               className="absolute right-1"
@@ -207,7 +210,7 @@ const SignUpEmailVerification = ({setSignUpEmail}: Props) => {
           </>
         )}
       </div>
-      {status === 'error' && <p className="text-sm text-red-500 mt-2">이미 가입된 이메일입니다.</p>}
+      {errors.emailId && <p className="text-sm text-red-500 mt-2">{`${errors.emailId.message}`}</p>}
       <button
         type="button"
         className={`mt-2 ${isEmailValid && status !== 'progressing' ? (status === 'success' ? 'button-primary-disable' : 'button-primary-invert') : 'button-primary-disable'}`}
