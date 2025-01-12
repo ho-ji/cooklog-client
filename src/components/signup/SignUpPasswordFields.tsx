@@ -1,38 +1,26 @@
 'use client'
 
 import {useState} from 'react'
+import {useFormContext} from 'react-hook-form'
 
 import {passwordValidator} from '@/utils/validators'
 
-interface Props {
-  setSignUpPassword: React.Dispatch<React.SetStateAction<string>>
-}
-
-const SignUpPasswordFields = ({setSignUpPassword}: Props) => {
-  const [password, setPassword] = useState<string>('')
-  const [passwordError, setPasswordError] = useState<null | boolean>(null)
-  const [confirmPassword, setConfirmPassword] = useState<string>('')
-  const [confirmPasswordError, setConfirmPasswordError] = useState<null | boolean>(null)
-
-  const handlePassswordChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
-    setPassword(e.target.value)
-    if (passwordError !== null) setPasswordError(!passwordValidator(e.target.value))
-  }
+const SignUpPasswordFields = () => {
+  const {
+    register,
+    formState: {errors},
+    watch,
+  } = useFormContext()
+  const password = watch('password')
+  const [isPasswordFocused, setIsPasswordFocused] = useState<boolean>(false)
+  const [isConfirmPasswordFocused, setIsConfirmPasswordFocused] = useState<boolean>(false)
 
   const verifyPassword: React.FocusEventHandler<HTMLInputElement> = () => {
-    setPasswordError(!passwordValidator(password))
-    setSignUpPassword('')
-  }
-
-  const handleConfirmPasswordChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
-    setConfirmPassword(e.target.value)
-    if (confirmPasswordError !== null) setConfirmPasswordError(e.target.value === '' || password !== e.target.value)
+    setIsPasswordFocused(true)
   }
 
   const verifyConfirmPassword: React.FocusEventHandler<HTMLInputElement> = () => {
-    setConfirmPasswordError(confirmPassword === '' || password !== confirmPassword)
-    if (!passwordError && password === confirmPassword) setSignUpPassword(password)
-    else setSignUpPassword('')
+    setIsConfirmPasswordFocused(true)
   }
 
   return (
@@ -41,30 +29,34 @@ const SignUpPasswordFields = ({setSignUpPassword}: Props) => {
         <label htmlFor="password">비밀번호</label>
         <p className="text-xs mb-2 text-gray-500">8~16자리의 영문, 숫자, 특수문자 조합으로 입력해주세요.</p>
         <input
-          className={`input ${passwordError && 'input-error'}`}
-          value={password}
-          onChange={handlePassswordChange}
-          onBlur={verifyPassword}
+          {...register('password', {
+            required: '비밀번호를 입력해주세요.',
+            onBlur: verifyPassword,
+            validate: (value) => passwordValidator(value) || '비밀번호가 조건에 맞지 않습니다.',
+          })}
+          className={`input ${errors.password && isPasswordFocused && 'input-error'}`}
           type="password"
           placeholder="비밀번호"
           maxLength={16}
           id="password"
         />
-        {passwordError && <p className="text-xs text-red-500 mt-1">{password === '' ? '비밀번호를 입력해주세요.' : '비밀번호가 조건에 맞지 않습니다.'}</p>}
+        {errors.password && isPasswordFocused && <p className="text-xs text-red-500 mt-1">{`${errors.password.message}`}</p>}
       </div>
       <div className="flex flex-col">
         <label htmlFor="confirm-password">비밀번호 확인</label>
         <input
-          className={`input ${confirmPasswordError && 'input-error'}`}
-          value={confirmPassword}
-          onChange={handleConfirmPasswordChange}
-          onBlur={verifyConfirmPassword}
+          {...register('confirmPassword', {
+            required: '비밀번호를 다시 입력해주세요.',
+            onBlur: verifyConfirmPassword,
+            validate: (value) => password === value || '비밀번호가 일치하지 않습니다.',
+          })}
+          className={`input ${errors.confirmPassword && isConfirmPasswordFocused && 'input-error'}`}
           type="password"
           placeholder="비밀번호 확인"
           maxLength={16}
           id="confirm-password"
         />
-        {confirmPasswordError && <p className="text-xs text-red-500 mt-1">{confirmPassword === '' ? '비밀번호를 다시 입력해주세요.' : '비밀번호가 일치하지 않습니다.'}</p>}
+        {errors.confirmPassword && isConfirmPasswordFocused && <p className="text-xs text-red-500 mt-1">{`${errors.confirmPassword.message}`}</p>}
       </div>
     </>
   )

@@ -2,10 +2,10 @@
 
 import Image from 'next/image'
 import React, {useEffect, useRef, useState} from 'react'
+import {useFormContext} from 'react-hook-form'
 
 import {emailValidator, verificationCodeValidator} from '@/utils/validators'
 import {checkVerificationCodeAPI, sendVerificationCodeAPI, verifyEmailAPI} from '@/api/user'
-import {useFormContext} from 'react-hook-form'
 import {StatusType} from './SignUpForm'
 
 type CodeErrorType = 'invalid' | 'expired' | 'incorrect'
@@ -179,13 +179,12 @@ const SignUpEmailVerification = ({status, setStatus}: StatusProps) => {
         <span className="text-gray-400 p-1">@</span>
         {!isCustomInput ? (
           <div className={`select w-full ${errors.emailId && '[&>select]:input-error'}`}>
-            <label className="sr-only">이메일 도메일 선택하기</label>
+            <label className="sr-only">이메일 도메인 선택하기</label>
             <select
               {...register('domain', {
                 onChange: handleDomainChange,
                 disabled: status === 'success',
-              })}
-              defaultValue="default">
+              })}>
               <option
                 disabled
                 value="default">

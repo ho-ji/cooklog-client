@@ -30,9 +30,10 @@ export type StatusType = 'idle' | 'loading' | 'progressing' | 'success'
 
 const SignUpForm = () => {
   const methods = useForm<UserInputData>({
+    mode: 'onChange',
     defaultValues: {
       emailId: '',
-      domain: '',
+      domain: 'default',
       password: '',
       nickname: '',
       marketingAgreement: false,

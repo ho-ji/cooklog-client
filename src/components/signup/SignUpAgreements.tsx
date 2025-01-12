@@ -1,16 +1,23 @@
 'use client'
 
 import {useState} from 'react'
-import {Agreements} from './SignUpForm'
 import Link from 'next/link'
 
-interface Props {
-  agreements: Agreements
-  setAgreements: React.Dispatch<React.SetStateAction<Agreements>>
+interface Agreements {
+  serviceAgreement: boolean
+  privacyAgreement: boolean
+  marketingAgreement: boolean
+  eventNotificationAgreement: boolean
 }
 
-const SignUpAgreements = ({agreements, setAgreements}: Props) => {
+const SignUpAgreements = () => {
   const [isAllChecked, setIsAllChecked] = useState<boolean>(false)
+  const [agreements, setAgreements] = useState<Agreements>({
+    serviceAgreement: false,
+    privacyAgreement: false,
+    marketingAgreement: false,
+    eventNotificationAgreement: false,
+  })
 
   const handleAllChecked: React.ChangeEventHandler<HTMLInputElement> = (e) => {
     const allChecked = Object.values(agreements).every((value) => value)
