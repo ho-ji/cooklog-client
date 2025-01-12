@@ -8,49 +8,66 @@ import SignUpPasswordFields from './SignUpPasswordFields'
 import SignUpNicknameField from './SignUpNicknameField'
 import {signUpAPI} from '@/api/user'
 import SignUpAgreements from './SignUpAgreements'
+import {FormProvider, useForm} from 'react-hook-form'
 
-export interface Agreements {
-  serviceAgreement: boolean
-  privacyAgreement: boolean
-  marketingAgreement: boolean
-  eventNotificationAgreement: boolean
-}
-
-export interface UserInfo {
+interface BaseUserInfo {
   email: string
   password: string
   nickname: string
   marketingAgreement: boolean
   eventNotificationAgreement: boolean
 }
+interface UserInputData extends BaseUserInfo {
+  emailId: string
+  domain: string
+}
+
+export interface UserInfo extends BaseUserInfo {
+  email: string
+}
+
+export type StatusType = 'idle' | 'loading' | 'progressing' | 'success'
 
 const SignUpForm = () => {
-  const [signUpEmail, setSignUpEmail] = useState<string>('')
-  const [signUpPassword, setSignUpPassword] = useState<string>('')
-  const [signUpNickname, setSignUpNickname] = useState<string>('')
-  const [loading, setLoading] = useState<boolean>(false)
-  const [agreements, setAgreements] = useState<Agreements>({
-    serviceAgreement: false,
-    privacyAgreement: false,
-    marketingAgreement: false,
-    eventNotificationAgreement: false,
+  const methods = useForm<UserInputData>({
+    defaultValues: {
+      emailId: '',
+      domain: '',
+      password: '',
+      nickname: '',
+      marketingAgreement: false,
+      eventNotificationAgreement: false,
+    },
   })
+  const [status, setStatus] = useState<StatusType>('idle')
+  const [loading, setLoading] = useState<boolean>(false)
+
   const router = useRouter()
 
-  const signUp: React.FormEventHandler<HTMLFormElement> = async (e) => {
-    e.preventDefault()
+  const signUp = async (data: UserInputData) => {
+    if (status !== 'success') return
     if (loading) false
     try {
       setLoading(true)
       const res = await signUpAPI({
-        email: signUpEmail,
-        password: signUpPassword,
-        nickname: signUpNickname,
-        marketingAgreement: agreements.marketingAgreement,
-        eventNotificationAgreement: agreements.eventNotificationAgreement,
+        email: `${data.emailId}@${data.domain}`,
+        password: data.password,
+        nickname: data.nickname,
+        marketingAgreement: data.marketingAgreement,
+        eventNotificationAgreement: data.eventNotificationAgreement,
       })
       if (res.success) {
         router.push('/signup/success')
+      }
+      if (res.data?.nickname) {
+        methods.setError('emailId', {message: '이미 사용 중인 닉네임입니다.'}, {shouldFocus: true})
+        methods.resetField('nickname')
+      }
+      if (res.data?.email) {
+        methods.setError('emailId', {message: '이미 가입된 이메일입니다.'}, {shouldFocus: true})
+        methods.resetField('emailId')
+        methods.resetField('domain')
+        setStatus('idle')
       }
     } catch (error) {
     } finally {
@@ -59,22 +76,20 @@ const SignUpForm = () => {
   }
 
   return (
-    <form
-      className="flex flex-col gap-5 [&>div>label]:mb-2 [&>div>label]:inline-block"
-      onSubmit={signUp}>
-      <SignUpEmailVerification setSignUpEmail={setSignUpEmail} />
-      <SignUpPasswordFields setSignUpPassword={setSignUpPassword} />
-      <SignUpNicknameField setSignUpNickname={setSignUpNickname} />
-      <SignUpAgreements
-        agreements={agreements}
-        setAgreements={setAgreements}
-      />
-      <button
-        className="button-primary disabled:button-primary-disable"
-        disabled={signUpEmail === '' || signUpPassword === '' || signUpNickname === '' || !agreements.serviceAgreement || !agreements.privacyAgreement}>
-        {loading ? <div className="spinner mx-auto"></div> : '회원가입'}
-      </button>
-    </form>
+    <FormProvider {...methods}>
+      <form
+        className="flex flex-col gap-5 [&>div>label]:mb-2 [&>div>label]:inline-block"
+        onSubmit={methods.handleSubmit(signUp)}>
+        <SignUpEmailVerification
+          status={status}
+          setStatus={setStatus}
+        />
+        <SignUpPasswordFields />
+        <SignUpNicknameField />
+        <SignUpAgreements />
+        <button className="button-primary disabled:button-primary-disable">{loading ? <div className="spinner mx-auto"></div> : '회원가입'}</button>
+      </form>
+    </FormProvider>
   )
 }
 

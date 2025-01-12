@@ -1,13 +1,13 @@
 'use client'
 
 import Image from 'next/image'
-import {useEffect, useRef, useState} from 'react'
+import React, {useEffect, useRef, useState} from 'react'
 
 import {emailValidator, verificationCodeValidator} from '@/utils/validators'
 import {checkVerificationCodeAPI, sendVerificationCodeAPI, verifyEmailAPI} from '@/api/user'
 import {useFormContext} from 'react-hook-form'
+import {StatusType} from './SignUpForm'
 
-type StatusType = 'idle' | 'loading' | 'progressing' | 'success'
 type CodeErrorType = 'invalid' | 'expired' | 'incorrect'
 const codeErrorMessage: Record<CodeErrorType, string> = {
   invalid: '6자리 숫자로 된 인증번호를 입력해주세요.',
@@ -15,7 +15,12 @@ const codeErrorMessage: Record<CodeErrorType, string> = {
   incorrect: '인증번호가 잘못되었습니다. 다시 입력해주세요.',
 }
 
-const SignUpEmailVerification = () => {
+interface StatusProps {
+  status: StatusType
+  setStatus: React.Dispatch<React.SetStateAction<StatusType>>
+}
+
+const SignUpEmailVerification = ({status, setStatus}: StatusProps) => {
   const {
     register,
     getValues,
@@ -27,7 +32,6 @@ const SignUpEmailVerification = () => {
   } = useFormContext()
   const [isCustomInput, setIsCustomInput] = useState<boolean>(false)
   const [isEmailValid, setIsEmailValid] = useState<boolean>(false)
-  const [status, setStatus] = useState<StatusType>('idle')
   const [emailTimer, setEmailTimer] = useState<number>(180)
   const intervalRef = useRef<NodeJS.Timeout | null>(null)
   const [verificationCode, setVerificationCode] = useState<string>('')
@@ -164,7 +168,10 @@ const SignUpEmailVerification = () => {
         <input
           type=" text"
           maxLength={64}
-          {...register('emailId', {required: true, onChange: handleEmailIdChange, disabled: status === 'success'})}
+          {...register('emailId', {
+            onChange: handleEmailIdChange,
+            disabled: status === 'success',
+          })}
           placeholder="이메일"
           className={`input w-32 ${errors.emailId && 'input-error'}`}
           id="email-username"
@@ -174,7 +181,10 @@ const SignUpEmailVerification = () => {
           <div className={`select w-full ${errors.emailId && '[&>select]:input-error'}`}>
             <label className="sr-only">이메일 도메일 선택하기</label>
             <select
-              {...register('domain', {required: true, onChange: handleDomainChange, disabled: status === 'success'})}
+              {...register('domain', {
+                onChange: handleDomainChange,
+                disabled: status === 'success',
+              })}
               defaultValue="default">
               <option
                 disabled
@@ -191,7 +201,10 @@ const SignUpEmailVerification = () => {
         ) : (
           <>
             <input
-              {...register('domain', {required: '도메인을 입력해주세요.', onChange: handleDomainChange, disabled: status === 'success'})}
+              {...register('domain', {
+                onChange: handleDomainChange,
+                disabled: status === 'success',
+              })}
               type="text"
               className={`input w-full pr-6 ${errors.emailId && 'input-error'}`}
               placeholder="입력해주세요"
