@@ -1,6 +1,6 @@
 'use client'
 
-import React, {useMemo, useState} from 'react'
+import React, {useState} from 'react'
 import {useRouter} from 'next/navigation'
 import {FormProvider, useForm} from 'react-hook-form'
 
@@ -45,17 +45,10 @@ const SignUpForm = () => {
       eventNotificationAgreement: false,
     },
   })
-  const {
-    formState: {errors},
-  } = methods
-  const [status, setStatus] = useState<StatusType>('idle')
+  const [status, setStatus] = useState<StatusType>('success')
   const [loading, setLoading] = useState<boolean>(false)
 
   const router = useRouter()
-
-  const isFormValid = useMemo(() => {
-    return status === 'success' && Object.keys(errors).length === 0
-  }, [status, errors])
 
   const signUp = async (data: UserInputData) => {
     if (loading) false
@@ -101,7 +94,7 @@ const SignUpForm = () => {
         <SignUpAgreements />
         <button
           className="button-primary disabled:button-primary-disable"
-          disabled={!isFormValid || loading}>
+          disabled={!methods.formState.isValid || loading}>
           {loading ? <div className="spinner mx-auto"></div> : '회원가입'}
         </button>
       </form>

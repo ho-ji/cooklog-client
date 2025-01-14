@@ -8,9 +8,7 @@ const SignUpPasswordFields = () => {
   const {
     register,
     formState: {errors},
-    watch,
   } = useFormContext()
-  const password = watch('password')
 
   return (
     <>
@@ -35,7 +33,7 @@ const SignUpPasswordFields = () => {
         <input
           {...register('confirmPassword', {
             required: '비밀번호를 다시 입력해주세요.',
-            validate: (value) => password === value || '비밀번호가 일치하지 않습니다.',
+            validate: (value, formValue) => formValue.password === value || '비밀번호가 일치하지 않습니다.',
           })}
           className={`input ${errors.confirmPassword && 'input-error'}`}
           type="password"
