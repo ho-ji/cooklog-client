@@ -1,14 +1,14 @@
 'use client'
 
-import React, {useState} from 'react'
+import React, {useMemo, useState} from 'react'
 import {useRouter} from 'next/navigation'
+import {FormProvider, useForm} from 'react-hook-form'
 
 import SignUpEmailVerification from './SignUpEmailVerification'
 import SignUpPasswordFields from './SignUpPasswordFields'
 import SignUpNicknameField from './SignUpNicknameField'
 import {signUpAPI} from '@/api/user'
 import SignUpAgreements from './SignUpAgreements'
-import {FormProvider, useForm} from 'react-hook-form'
 
 interface BaseUserInfo {
   email: string
@@ -45,14 +45,19 @@ const SignUpForm = () => {
       eventNotificationAgreement: false,
     },
   })
+  const {
+    formState: {errors},
+  } = methods
   const [status, setStatus] = useState<StatusType>('idle')
   const [loading, setLoading] = useState<boolean>(false)
 
   const router = useRouter()
 
+  const isFormValid = useMemo(() => {
+    return status === 'success' && Object.keys(errors).length === 0
+  }, [status, errors])
+
   const signUp = async (data: UserInputData) => {
-    console.log(data)
-    if (status !== 'success') return
     if (loading) false
     try {
       setLoading(true)
@@ -67,7 +72,7 @@ const SignUpForm = () => {
         router.push('/signup/success')
       }
       if (res.data?.nickname) {
-        methods.setError('emailId', {message: '이미 사용 중인 닉네임입니다.'}, {shouldFocus: true})
+        methods.setError('nickname', {message: '이미 사용 중인 닉네임입니다.'}, {shouldFocus: true})
         methods.resetField('nickname')
       }
       if (res.data?.email) {
@@ -94,7 +99,11 @@ const SignUpForm = () => {
         <SignUpPasswordFields />
         <SignUpNicknameField />
         <SignUpAgreements />
-        <button className="button-primary disabled:button-primary-disable">{loading ? <div className="spinner mx-auto"></div> : '회원가입'}</button>
+        <button
+          className="button-primary disabled:button-primary-disable"
+          disabled={!isFormValid || loading}>
+          {loading ? <div className="spinner mx-auto"></div> : '회원가입'}
+        </button>
       </form>
     </FormProvider>
   )

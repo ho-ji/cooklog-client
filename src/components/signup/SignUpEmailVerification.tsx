@@ -64,7 +64,7 @@ const SignUpEmailVerification = ({status, setStatus}: StatusProps) => {
     resetField('domain')
   }
 
-  const verifyEmail = async (): Promise<void> => {
+  const verifyEmail: React.MouseEventHandler<HTMLButtonElement> = async () => {
     if (!isEmailValid || status !== 'idle') return
     setStatus('loading')
     try {
@@ -84,7 +84,7 @@ const SignUpEmailVerification = ({status, setStatus}: StatusProps) => {
     }
   }
 
-  const reverifyEmail = async (): Promise<void> => {
+  const reverifyEmail: React.MouseEventHandler<HTMLButtonElement> = async () => {
     try {
       if (loading) return
       setLoading(true)

@@ -9,7 +9,6 @@ import {verifyNicknameAPI} from '@/api/user'
 const SignUpNicknameField = () => {
   const {
     register,
-    getValues,
     setError,
     formState: {errors},
   } = useFormContext()
@@ -17,10 +16,10 @@ const SignUpNicknameField = () => {
 
   const handleNicknameChange: React.ChangeEventHandler<HTMLInputElement> = () => setIsChange(true)
 
-  const verifyNickname: React.FocusEventHandler<HTMLInputElement> = async () => {
+  const verifyNickname: React.FocusEventHandler<HTMLInputElement> = async (e) => {
     if (!isChange) return
     try {
-      const res = await verifyNicknameAPI(getValues('nickname'))
+      const res = await verifyNicknameAPI(e.target.value)
       setIsChange(false)
       if (res.data) {
         setError('nickname', {type: 'duplicate', message: '이미 사용 중인 닉네임입니다.'})
@@ -40,7 +39,9 @@ const SignUpNicknameField = () => {
         {...register('nickname', {
           required: '닉네임을 입력해주세요.',
           onChange: handleNicknameChange,
-          onBlur: verifyNickname,
+          onBlur(e) {
+            verifyNickname(e)
+          },
           validate: {
             short: (value) => value.length !== 1 || '2자 이상 입력해주세요.',
             invalid: (value) => nicknameValidator(value) || '2~20자의 한글, 영문, 숫자의 조합으로 입력해주세요.',
