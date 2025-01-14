@@ -20,6 +20,8 @@ interface BaseUserInfo {
 interface UserInputData extends BaseUserInfo {
   emailId: string
   domain: string
+  serviceAgreement: boolean
+  privacyAgreement: boolean
 }
 
 export interface UserInfo extends BaseUserInfo {
@@ -37,6 +39,8 @@ const SignUpForm = () => {
       domain: 'default',
       password: '',
       nickname: '',
+      serviceAgreement: false,
+      privacyAgreement: false,
       marketingAgreement: false,
       eventNotificationAgreement: false,
     },
@@ -47,6 +51,7 @@ const SignUpForm = () => {
   const router = useRouter()
 
   const signUp = async (data: UserInputData) => {
+    console.log(data)
     if (status !== 'success') return
     if (loading) false
     try {

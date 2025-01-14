@@ -2,41 +2,23 @@
 
 import {useState} from 'react'
 import Link from 'next/link'
-
-interface Agreements {
-  serviceAgreement: boolean
-  privacyAgreement: boolean
-  marketingAgreement: boolean
-  eventNotificationAgreement: boolean
-}
+import {useForm} from 'react-hook-form'
 
 const SignUpAgreements = () => {
+  const {register, getValues, setValue} = useForm()
   const [isAllChecked, setIsAllChecked] = useState<boolean>(false)
-  const [agreements, setAgreements] = useState<Agreements>({
-    serviceAgreement: false,
-    privacyAgreement: false,
-    marketingAgreement: false,
-    eventNotificationAgreement: false,
-  })
 
-  const handleAllChecked: React.ChangeEventHandler<HTMLInputElement> = (e) => {
+  const handleAllChecked: React.ChangeEventHandler<HTMLInputElement> = () => {
+    const agreements = getValues()
     const allChecked = Object.values(agreements).every((value) => value)
     setIsAllChecked(!allChecked)
-    setAgreements({
-      serviceAgreement: !allChecked,
-      privacyAgreement: !allChecked,
-      marketingAgreement: !allChecked,
-      eventNotificationAgreement: !allChecked,
+    Object.keys(agreements).forEach((key) => {
+      setValue(key, !allChecked)
     })
   }
-  const handleAgreementChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
-    const {name, checked} = e.target
-    setAgreements((prev) => {
-      const updatedAgreements = {...prev, [name]: checked}
-      const allChecked = Object.values(updatedAgreements).every((value) => value)
-      setIsAllChecked(allChecked)
-      return updatedAgreements
-    })
+  const handleAgreementChange: React.ChangeEventHandler<HTMLInputElement> = () => {
+    const allChecked = Object.values(getValues()).every((value) => value)
+    setIsAllChecked(allChecked)
   }
 
   return (
@@ -56,10 +38,11 @@ const SignUpAgreements = () => {
         <hr className="my-1"></hr>
         <label className="check-box">
           <input
+            {...register('serviceAgreement', {
+              onChange: handleAgreementChange,
+              validate: (value) => value,
+            })}
             type="checkbox"
-            name="serviceAgreement"
-            checked={agreements.serviceAgreement}
-            onChange={handleAgreementChange}
           />
           <span className="check-box-icon"></span>
           서비스 이용 약관 <span className="ml-1 text-xs text-green-600">(필수)</span>
@@ -69,10 +52,11 @@ const SignUpAgreements = () => {
         </label>
         <label className="check-box">
           <input
+            {...register('privacyAgreement', {
+              onChange: handleAgreementChange,
+              validate: (value) => value,
+            })}
             type="checkbox"
-            name="privacyAgreement"
-            checked={agreements.privacyAgreement}
-            onChange={handleAgreementChange}
           />
           <span className="check-box-icon"></span>
           개인정보수집 및 이용 동의<span className="ml-1 text-xs text-green-600">(필수)</span>
@@ -82,10 +66,10 @@ const SignUpAgreements = () => {
         </label>
         <label className="check-box">
           <input
+            {...register('marketingAgreement', {
+              onChange: handleAgreementChange,
+            })}
             type="checkbox"
-            name="marketingAgreement"
-            checked={agreements.marketingAgreement}
-            onChange={handleAgreementChange}
           />
           <span className="check-box-icon"></span>
           마케팅 정보 수신 동의<span className="ml-1 text-xs text-gray-400">(선택)</span>
@@ -95,10 +79,10 @@ const SignUpAgreements = () => {
         </label>
         <label className="check-box">
           <input
+            {...register('eventNotificationAgreement', {
+              onChange: handleAgreementChange,
+            })}
             type="checkbox"
-            name="eventNotificationAgreement"
-            checked={agreements.eventNotificationAgreement}
-            onChange={handleAgreementChange}
           />
           <span className="check-box-icon"></span>
           이벤트 알림 수신 동의<span className="ml-1 text-xs text-gray-400">(선택)</span>

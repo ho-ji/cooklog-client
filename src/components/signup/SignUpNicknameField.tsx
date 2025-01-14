@@ -1,10 +1,10 @@
 'use client'
 
 import {useState} from 'react'
+import {useFormContext} from 'react-hook-form'
 
 import {nicknameValidator} from '@/utils/validators'
 import {verifyNicknameAPI} from '@/api/user'
-import {useFormContext} from 'react-hook-form'
 
 const SignUpNicknameField = () => {
   const {
