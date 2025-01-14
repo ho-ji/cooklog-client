@@ -12,16 +12,6 @@ const SignUpPasswordFields = () => {
     watch,
   } = useFormContext()
   const password = watch('password')
-  const [isPasswordFocused, setIsPasswordFocused] = useState<boolean>(false)
-  const [isConfirmPasswordFocused, setIsConfirmPasswordFocused] = useState<boolean>(false)
-
-  const verifyPassword: React.FocusEventHandler<HTMLInputElement> = () => {
-    setIsPasswordFocused(true)
-  }
-
-  const verifyConfirmPassword: React.FocusEventHandler<HTMLInputElement> = () => {
-    setIsConfirmPasswordFocused(true)
-  }
 
   return (
     <>
@@ -31,32 +21,30 @@ const SignUpPasswordFields = () => {
         <input
           {...register('password', {
             required: '비밀번호를 입력해주세요.',
-            onBlur: verifyPassword,
             validate: (value) => passwordValidator(value) || '비밀번호가 조건에 맞지 않습니다.',
           })}
-          className={`input ${errors.password && isPasswordFocused && 'input-error'}`}
+          className={`input ${errors.password && 'input-error'}`}
           type="password"
           placeholder="비밀번호"
           maxLength={16}
           id="password"
         />
-        {errors.password && isPasswordFocused && <p className="text-xs text-red-500 mt-1">{`${errors.password.message}`}</p>}
+        {errors.password && <p className="text-xs text-red-500 mt-1">{`${errors.password.message}`}</p>}
       </div>
       <div className="flex flex-col">
         <label htmlFor="confirm-password">비밀번호 확인</label>
         <input
           {...register('confirmPassword', {
             required: '비밀번호를 다시 입력해주세요.',
-            onBlur: verifyConfirmPassword,
             validate: (value) => password === value || '비밀번호가 일치하지 않습니다.',
           })}
-          className={`input ${errors.confirmPassword && isConfirmPasswordFocused && 'input-error'}`}
+          className={`input ${errors.confirmPassword && 'input-error'}`}
           type="password"
           placeholder="비밀번호 확인"
           maxLength={16}
           id="confirm-password"
         />
-        {errors.confirmPassword && isConfirmPasswordFocused && <p className="text-xs text-red-500 mt-1">{`${errors.confirmPassword.message}`}</p>}
+        {errors.confirmPassword && <p className="text-xs text-red-500 mt-1">{`${errors.confirmPassword.message}`}</p>}
       </div>
     </>
   )

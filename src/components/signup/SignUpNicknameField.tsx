@@ -4,46 +4,30 @@ import {useState} from 'react'
 
 import {nicknameValidator} from '@/utils/validators'
 import {verifyNicknameAPI} from '@/api/user'
+import {useFormContext} from 'react-hook-form'
 
-interface Props {
-  setSignUpNickname: React.Dispatch<React.SetStateAction<string>>
-}
-
-type ErrorType = 'empty' | 'short' | 'invalid' | 'duplicate'
-const errorMessage: Record<ErrorType, string> = {
-  empty: '닉네임을 입력해주세요.',
-  short: '2자 이상 입력해주세요.',
-  invalid: '2~20자의 한글, 영문, 숫자의 조합으로 입력해주세요.',
-  duplicate: '이미 사용 중인 닉네임입니다.',
-}
-
-const SignUpNicknameField = ({setSignUpNickname}: Props) => {
-  const [nickname, setNickname] = useState<string>('')
-  const [nicknameError, setNicknameError] = useState<ErrorType | null>(null)
+const SignUpNicknameField = () => {
+  const {
+    register,
+    getValues,
+    setError,
+    formState: {errors},
+  } = useFormContext()
   const [isChange, setIsChange] = useState<boolean>(false)
-  const [isFocused, setIsFocused] = useState<boolean>(false)
 
-  const handleNicknameChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
-    setSignUpNickname('')
-    setIsChange(true)
-    const inputValue = e.target.value
-    setNickname(inputValue)
-    const error = inputValue.length === 0 ? 'empty' : inputValue.length < 2 ? 'short' : !nicknameValidator(inputValue) ? 'invalid' : null
-    setNicknameError(error)
-  }
+  const handleNicknameChange: React.ChangeEventHandler<HTMLInputElement> = () => setIsChange(true)
 
   const verifyNickname: React.FocusEventHandler<HTMLInputElement> = async () => {
-    setIsFocused(true)
-    if (nicknameError || !isChange) return
+    if (!isChange) return
     try {
-      const res = await verifyNicknameAPI(nickname)
+      const res = await verifyNicknameAPI(getValues('nickname'))
       setIsChange(false)
       if (res.data) {
-        setNicknameError('duplicate')
+        setError('nickname', {type: 'duplicate', message: '이미 사용 중인 닉네임입니다.'})
         return
       }
-      setSignUpNickname(nickname)
     } catch (error) {
+      setError('nickname', {type: 'retry', message: '잠시 후 다시 시도해주세요.'})
       console.error(error)
     }
   }
@@ -53,14 +37,20 @@ const SignUpNicknameField = ({setSignUpNickname}: Props) => {
       <label>닉네임</label>
       <p className="text-xs mb-2 text-gray-500">2~20자리의 닉네임을 입력해주세요.(변경 가능)</p>
       <input
-        className={`input ${nicknameError && 'input-error'}`}
-        value={nickname}
+        {...register('nickname', {
+          required: '닉네임을 입력해주세요.',
+          onChange: handleNicknameChange,
+          onBlur: verifyNickname,
+          validate: {
+            short: (value) => value.length !== 1 || '2자 이상 입력해주세요.',
+            invalid: (value) => nicknameValidator(value) || '2~20자의 한글, 영문, 숫자의 조합으로 입력해주세요.',
+          },
+        })}
+        className={`input ${errors.nickname && 'input-error'}`}
         maxLength={20}
-        onChange={handleNicknameChange}
-        onBlur={verifyNickname}
         placeholder="닉네임 입력"
       />
-      {nicknameError && isFocused && <p className="text-xs text-red-500 mt-1">{errorMessage[nicknameError]}</p>}
+      {errors.nickname && <p className="text-xs text-red-500 mt-1">{`${errors.nickname?.message}`}</p>}
     </div>
   )
 }
