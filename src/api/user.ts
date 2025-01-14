@@ -42,7 +42,7 @@ export const verifyNicknameAPI = async (nickname: string) => {
 
 export const signUpAPI = async (userInfo: UserInfo) => {
   try {
-    const res = await instance.post('/api/signup', {
+    const res = await instance.post('/api/user/signup', {
       userInfo,
     })
     return res.data

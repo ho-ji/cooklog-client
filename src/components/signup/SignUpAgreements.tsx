@@ -12,13 +12,16 @@ const Agreements = [
 ]
 
 const SignUpAgreements = () => {
-  const {register, getValues, setValue} = useFormContext()
+  const {register, getValues, setValue, trigger} = useFormContext()
   const [isAllChecked, setIsAllChecked] = useState<boolean>(false)
 
-  const handleAllChecked: React.ChangeEventHandler<HTMLInputElement> = () => {
+  const handleAllChecked: React.ChangeEventHandler<HTMLInputElement> = async () => {
     const allChecked = Agreements.every((agreement) => getValues(agreement.name))
     setIsAllChecked(!allChecked)
-    Agreements.forEach((v) => setValue(v.name, !allChecked))
+    for (const value of Agreements) {
+      setValue(value.name, !allChecked)
+      if (value.required) await trigger(value.name)
+    }
   }
   const handleAgreementChange: React.ChangeEventHandler<HTMLInputElement> = () => {
     const allChecked = Agreements.every((agreement) => getValues(agreement.name))

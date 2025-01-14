@@ -45,7 +45,7 @@ const SignUpForm = () => {
       eventNotificationAgreement: false,
     },
   })
-  const [status, setStatus] = useState<StatusType>('success')
+  const [status, setStatus] = useState<StatusType>('idle')
   const [loading, setLoading] = useState<boolean>(false)
 
   const router = useRouter()
@@ -55,7 +55,7 @@ const SignUpForm = () => {
     try {
       setLoading(true)
       const res = await signUpAPI({
-        email: `${data.emailId}@${data.domain}`,
+        email: `${methods.getValues('emailId')}@${methods.getValues('domain')}`,
         password: data.password,
         nickname: data.nickname,
         marketingAgreement: data.marketingAgreement,
