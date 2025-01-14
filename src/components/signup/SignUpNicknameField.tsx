@@ -17,10 +17,10 @@ const SignUpNicknameField = () => {
   const handleNicknameChange: React.ChangeEventHandler<HTMLInputElement> = () => setIsChange(true)
 
   const verifyNickname: React.FocusEventHandler<HTMLInputElement> = async (e) => {
-    if (!isChange) return
+    if (!isChange || errors.nickname) return
     try {
-      const res = await verifyNicknameAPI(e.target.value)
       setIsChange(false)
+      const res = await verifyNicknameAPI(e.target.value)
       if (res.data) {
         setError('nickname', {type: 'duplicate', message: '이미 사용 중인 닉네임입니다.'})
         return
