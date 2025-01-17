@@ -43,7 +43,7 @@ export const verifyNicknameAPI = async (nickname: string) => {
 export const signUpAPI = async (userInfo: UserInfo) => {
   try {
     const res = await instance.post('/api/user/signup', {
-      userInfo,
+      ...userInfo,
     })
     return res.data
   } catch (error) {

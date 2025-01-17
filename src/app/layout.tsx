@@ -10,6 +10,9 @@ const notoSansKR = Noto_Sans_KR({
 export const metadata: Metadata = {
   title: '쿡로그',
   description: '요리 레시피 블로그 쿡로그',
+  icons: {
+    icon: '/favicon.ico',
+  },
 }
 
 const RootLayout = ({children}: {children: React.ReactNode}) => {
