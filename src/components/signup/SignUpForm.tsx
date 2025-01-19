@@ -62,7 +62,7 @@ const SignUpForm = () => {
         eventNotificationAgreement: data.eventNotificationAgreement,
       })
       if (res.success) {
-        router.push('/signup/success')
+        router.replace('/signup/success')
       }
       if (res.data?.nickname) {
         methods.setError('nickname', {message: '이미 사용 중인 닉네임입니다.'}, {shouldFocus: true})
