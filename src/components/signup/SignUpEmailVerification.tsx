@@ -4,7 +4,7 @@ import Image from 'next/image'
 import React, {useEffect, useRef, useState} from 'react'
 import {useFormContext} from 'react-hook-form'
 
-import {emailValidator, verificationCodeValidator} from '@/utils/validators'
+import {domainValidator, emailIdValidator, verificationCodeValidator} from '@/utils/validators'
 import {checkVerificationCodeAPI, sendVerificationCodeAPI, verifyEmailAPI} from '@/api/user'
 import {StatusType} from './SignUpForm'
 
@@ -41,7 +41,7 @@ const SignUpEmailVerification = ({status, setStatus}: StatusProps) => {
   const handleEmailIdChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
     resetIdle()
     clearErrors('emailId')
-    setIsEmailValid(emailValidator(e.target.value, getValues('domain')))
+    setIsEmailValid(emailIdValidator(e.target.value) && domainValidator(getValues('domain')))
   }
 
   const handleDomainChange: React.ChangeEventHandler<HTMLSelectElement | HTMLInputElement> = (e) => {
@@ -53,7 +53,7 @@ const SignUpEmailVerification = ({status, setStatus}: StatusProps) => {
       setValue('domain', '')
       return
     }
-    setIsEmailValid(emailValidator(getValues('emailId'), e.target.value))
+    setIsEmailValid(emailIdValidator(getValues('emailId')) && domainValidator(e.target.value))
   }
 
   const clearDomain: React.MouseEventHandler<HTMLButtonElement> = () => {
@@ -78,7 +78,7 @@ const SignUpEmailVerification = ({status, setStatus}: StatusProps) => {
       emailTimerStart()
       await sendVerificationCodeAPI(`${getValues('emailId')}@${getValues('domain')}`)
     } catch (error) {
-      setError('emailId', {message: '잠시 후 다시 시도해주세요.'}, {shouldFocus: false})
+      setError('emailId', {message: '잠시 후 다시 시도해 주세요.'}, {shouldFocus: false})
       setStatus('idle')
       console.error(error)
     }

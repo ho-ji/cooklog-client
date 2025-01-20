@@ -26,7 +26,7 @@ const SignUpNicknameField = () => {
         return
       }
     } catch (error) {
-      setError('nickname', {type: 'retry', message: '잠시 후 다시 시도해주세요.'})
+      setError('nickname', {type: 'retry', message: '잠시 후 다시 시도해 주세요.'})
       console.error(error)
     }
   }

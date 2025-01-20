@@ -50,3 +50,15 @@ export const signUpAPI = async (userInfo: UserInfo) => {
     throw error
   }
 }
+
+export const signInAPI = async (email: string, password: string) => {
+  try {
+    const res = await instance.post('/api/user/signin', {
+      email,
+      password,
+    })
+    return res.data
+  } catch (error) {
+    throw error
+  }
+}
