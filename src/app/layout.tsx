@@ -1,6 +1,7 @@
 import type {Metadata} from 'next'
 import {Noto_Sans_KR} from 'next/font/google'
 import './globals.css'
+import StoreProvider from './StoreProvider'
 
 const notoSansKR = Noto_Sans_KR({
   weight: ['400', '700'],
@@ -18,7 +19,9 @@ export const metadata: Metadata = {
 const RootLayout = ({children}: {children: React.ReactNode}) => {
   return (
     <html>
-      <body className={`${notoSansKR.className} antialiased`}>{children}</body>
+      <body className={`${notoSansKR.className} antialiased`}>
+        <StoreProvider>{children}</StoreProvider>
+      </body>
     </html>
   )
 }

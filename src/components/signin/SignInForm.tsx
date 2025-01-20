@@ -6,6 +6,8 @@ import {SubmitHandler, useForm} from 'react-hook-form'
 
 import {signInAPI} from '@/api/user'
 import {emailValidator, passwordValidator} from '@/utils/validators'
+import {useAppDispatch} from '@/lib/hook'
+import {setAccessToken} from '@/lib/features/auth/authSlice'
 
 interface SignInInfo {
   email: string
@@ -14,6 +16,7 @@ interface SignInInfo {
 
 const SignInForm = () => {
   const [loading, setLoading] = useState<boolean>(false)
+  const dispatch = useAppDispatch()
   const router = useRouter()
   const {
     register,
@@ -37,6 +40,7 @@ const SignInForm = () => {
       const res = await signInAPI(data.email, data.password)
       if (res.success) {
         const {accessToken, uid} = res.data
+        dispatch(setAccessToken(accessToken))
         localStorage.setItem('uid', uid)
         router.push('/')
         return
