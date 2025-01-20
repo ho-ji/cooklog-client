@@ -1,10 +1,11 @@
 'use client'
 
-import {signInAPI} from '@/api/user'
-import {emailValidator, passwordValidator} from '@/utils/validators'
 import {useRouter} from 'next/navigation'
 import {useState} from 'react'
 import {SubmitHandler, useForm} from 'react-hook-form'
+
+import {signInAPI} from '@/api/user'
+import {emailValidator, passwordValidator} from '@/utils/validators'
 
 interface SignInInfo {
   email: string
@@ -77,7 +78,11 @@ const SignInForm = () => {
         />
       </label>
       {errors && <p className="text-red-500 text-sm">{errors.email?.message || errors.password?.message}</p>}
-      <button className="button-primary">로그인</button>
+      <button
+        className={`button-primary ${loading && 'button-primary-disable'}`}
+        disabled={loading}>
+        {loading ? <div className="spinner mx-auto"></div> : '로그인'}
+      </button>
     </form>
   )
 }
