@@ -5,8 +5,8 @@ import React, {useEffect, useRef, useState} from 'react'
 import {useFormContext} from 'react-hook-form'
 
 import {domainValidator, emailIdValidator, verificationCodeValidator} from '@/utils/validators'
-import {checkVerificationCodeAPI, sendVerificationCodeAPI, verifyEmailAPI} from '@/api/user'
 import {StatusType} from './SignUpForm'
+import {checkVerificationCodeAPI, sendVerificationCodeAPI, verifyEmailAPI} from '@/api/emailVerification'
 
 type CodeErrorType = 'invalid' | 'expired' | 'incorrect'
 const codeErrorMessage: Record<CodeErrorType, string> = {
